@@ -12,4 +12,11 @@ module ParseISO15022
   def self.root
     File.dirname __dir__
   end
+
+  autoload :Tokenize,    'parse_iso_15022/tokenize'
+
+  # Tokenizer modules for strings in an ISO 15022 message
+  module Tokenize
+    autoload :Format,    'parse_iso_15022/tokenize/format'
+  end
 end
