@@ -5,8 +5,8 @@ Parse ISO 15022 (WIP)
 
 ### Parse ISO 15022 SWIFT Messages
 
-`parse_iso_15022` is a RubyGem that implements various utility methods for parising
-ISO 15022 SWIFT messages. 
+`parse_iso_15022` is a RubyGem that implements various utility methods for parsing
+ISO 15022 SWIFT messages. It is not a fully fledged parser, and is currently a WIP.
 
  
 ### Installation
