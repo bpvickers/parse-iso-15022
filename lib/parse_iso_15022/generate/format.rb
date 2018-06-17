@@ -13,8 +13,13 @@ module Generate
       ->(min, max) { Regexp.new("\\A#{field_type}{#{min},#{max}}\\z")}.freeze
     end
 
-    def self.pattern(field_type:, min:, max:)
-      "#{FIELD_TYPE[field_type]}{#{min},#{max}}"
+    def self.pattern(type:, min:, max:, repeat: nil)
+      pattern = "#{FIELD_TYPE[type]}{#{min},#{max}}"
+      if repeat.is_a?(::Integer) && repeat > 1
+        "(?:#{pattern}}\n){1,#{repeat}}"
+      else
+        pattern
+      end
     end
 
     FORMAT_PROC =
@@ -24,7 +29,7 @@ module Generate
       # Compile the format string AST into a lambda proc
       pattern = compile(ast: Parse.format(input))
 
-      Regexp.new("\\A#{pattern}\\z")
+      Regexp.new("\\A#{pattern}\\z".chomp)
     end
 
     def self.format(format:, value:)
@@ -55,8 +60,9 @@ module Generate
 
     def self.field(field)
       length = field[:length]
+      repeat = field[:repeat]
 
-      pattern(field_type: field[:type], min: length.min, max: length.max)
+      pattern(type: field[:type], min: length.min, max: length.max, repeat: repeat)
     end
 
     def self.group(group, recursive: false)

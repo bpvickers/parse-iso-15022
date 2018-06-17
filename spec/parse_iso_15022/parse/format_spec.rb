@@ -46,10 +46,40 @@ describe ParseISO15022::Parse do
           ]
         }
       },
-      { string: ':4!c//35x',
+      { string: '(35x)[3*35x]',
         ast: {
           format: [
-            { literal: ':' },
+            {
+              group: {
+                type: :capture,
+                format: [{ field: { length: 1..35, type: :x } }]
+              }
+            },
+            {
+              group: {
+                type: :optional,
+                format: [{ field: { repeat: 3, length: 1..35, type: :x } }]
+              }
+            }
+          ]
+        }
+      },
+      { string: '35x(3*35x)',
+        ast: {
+          format: [
+            { field: { length: 1..35, type: :x } },
+            {
+              group: {
+                type: :capture,
+                format: [{ field: { repeat: 3, length: 1..35, type: :x } }]
+              }
+            }
+          ]
+        }
+      },
+      { string: '4!c//35x',
+        ast: {
+          format: [
             { field: { length: 4..4, type: :c } },
             { literal: '//' },
             { field: { length: 1..35, type: :x } }
