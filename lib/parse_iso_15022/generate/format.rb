@@ -33,7 +33,7 @@ module Generate
       captures = match.captures.length
       raise 'more than one capture group specified' if captures > 1
 
-      # Return the first capture group
+      # Return the first capture group if specified
       captures.zero? ? value : match[1]
     end
 
@@ -82,7 +82,7 @@ module Generate
     def self.capture_group(ast)
       pattern = compile(ast: ast, recursive: true)
 
-      # Create a capturing group to extract this sub-substring
+      # Create a capture group to extract this sub-substring
       "(#{pattern})"
     end
   end

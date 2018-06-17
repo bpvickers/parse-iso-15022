@@ -94,18 +94,33 @@ module Parse
 
     # E.g., 3!c, 15d
     def self.field(max, tokens, index)
-      length, index = length(max, tokens, index)
+      length, repeat, index = length(max, tokens, index)
 
       type = tokens[index += 1].to_sym
       raise "invalid character set '#{type}'" unless FIELD_TYPE[type]
 
-      node = { field: { length: length, type: type } }
+      node = if repeat == 1
+               { field: { length: length, type: type } }
+             else
+               { field: { length: length, type: type, repeat: repeat } }
+             end
       [node.freeze, index + 1]
     end
     private_class_method :field
 
     def self.length(max, tokens, index)
-      tokens[index + 1] == '!' ? [max..max, index + 1] : [1..max, index]
+      case tokens[index + 1]
+      when '!'
+      then
+        [max..max, 1, index + 1]
+      when '*'
+      then
+        repeat = max
+        max = tokens[index + 2]
+        [1..max, repeat, index + 2]
+      else
+        [1..max, 1, index]
+      end
     end
 
     def self.literal(literal, tokens, index)

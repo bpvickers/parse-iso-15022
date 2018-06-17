@@ -29,6 +29,23 @@ describe ParseISO15022::Parse do
 
   context 'valid format strings' do
     valid_tests = [
+      { string: '4*35x',
+        ast: {
+          format: [
+            { field: { repeat: 4, length: 1..35, type: :x } }
+          ]
+        }
+      },
+      { string: ':4!c//4*35x',
+        ast: {
+          format: [
+            { literal: ':' },
+            { field: { length: 4..4, type: :c } },
+            { literal: '//' },
+            { field: { repeat: 4, length: 1..35, type: :x } }
+          ]
+        }
+      },
       { string: ':4!c//35x',
         ast: {
           format: [
@@ -116,7 +133,8 @@ describe ParseISO15022::Parse do
     describe '.string' do
       valid_tests.each do |test|
         it "parses the string #{test[:string]}" do
-          expect(ParseISO15022::Parse.format(test[:string])).to eq test[:ast]
+          result = ParseISO15022::Parse.format(test[:string])
+          expect(result).to eq test[:ast]
         end
       end
     end
