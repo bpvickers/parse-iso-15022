@@ -103,18 +103,18 @@ module Parse
 
     # E.g., 3!c, 15d
     def self.field(max, tokens, index)
-      if tokens[index + 1] == '!'
-        index += 1
-        length = max..max
-      else
-        length = 1..max
-      end
+      length, index = length(max, tokens, index)
+
       type = tokens[index += 1].to_sym
       raise "invalid character set '#{type}'" unless FIELD_TYPE[type]
 
       node = { field: { length: length, type: type } }
-
       [node.freeze, index + 1]
+    end
+    private_class_method :field
+
+    def self.length(max, tokens, index)
+      tokens[index + 1] == '!' ? [max..max, index + 1] : [1..max, index]
     end
 
     def self.literal(literal, tokens, index)
@@ -126,12 +126,14 @@ module Parse
 
       [{ literal: literal }.freeze, index]
     end
+    private_class_method :literal
 
     def self.date_format(token, index)
       node = { date: token.to_sym }
 
       [node.freeze, index + 1]
     end
+    private_class_method :date_format
   end
 end
 end
