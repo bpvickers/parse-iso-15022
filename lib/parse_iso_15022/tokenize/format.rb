@@ -49,12 +49,12 @@ module Tokenize
       index = start + 1
       rest = chars[start + 1..-1]
       rest.each do |char|
-        return [token, index] unless DIGIT_CHAR[char]
+        return [token.to_i, index] unless DIGIT_CHAR[char]
         token << char
         index += 1
       end
 
-      [token, index]
+      [token.to_i, index]
     end
     private_class_method :digits
 
@@ -64,12 +64,12 @@ module Tokenize
       index = start + 1
       rest = chars[start + 1..-1]
       rest.each do |char|
-        return [token, index] unless DATE_FORMAT_CHAR[char]
+        return [token.to_sym, index] unless DATE_FORMAT_CHAR[char]
         token << char
         index += 1
       end
 
-      [token, index]
+      [token.to_sym, index]
     end
     private_class_method :date_format
   end
