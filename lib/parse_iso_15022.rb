@@ -8,10 +8,13 @@ require 'active_support/core_ext/object'
 # @author Brett Vickers <brett@phillips-vickers.com>
 # See LICENSE and README.md for details.
 module ParseISO15022
+  SIGN_CHAR = 'N'
   FORMAT_DATE_CHARS = %w[Y M D H M S].freeze
   FORMAT_GROUP_CHARS = %w/[ ] ( ) < >/.freeze
   FORMAT_SPECIAL_CHARS =
-    (%w[N ! n a x y z c e d *] + FORMAT_DATE_CHARS + FORMAT_GROUP_CHARS).freeze
+    (%w[! n a x y z c e d *] +
+     [SIGN_CHAR] + FORMAT_DATE_CHARS + FORMAT_GROUP_CHARS
+    ).freeze
 
   # @return [String] gem project's root directory
   def self.root

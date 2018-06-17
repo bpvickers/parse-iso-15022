@@ -11,7 +11,10 @@ describe ParseISO15022::Parse do
         message: 'missing closing bracket ] for optional group' },
       { string: '<4!c//YYYYMMDDHHMMSS[,3n][/[N]HH[MM]]',
         exception: RuntimeError,
-        message: 'missing closing bracket > for optional group' }
+        message: 'missing closing bracket > for optional group' },
+      { string: '4!s',
+        exception: RuntimeError,
+        message: "invalid character set 's'" }
     ]
 
     describe '.string' do
@@ -30,9 +33,9 @@ describe ParseISO15022::Parse do
         ast: {
           format: [
             { literal: ':' },
-            { pattern: { length: 4..4, char_set: :c } },
+            { field: { length: 4..4, type: :c } },
             { literal: '//' },
-            { pattern: { length: 1..35, char_set: :x } }
+            { field: { length: 1..35, type: :x } }
           ]
         }
       },
@@ -40,7 +43,7 @@ describe ParseISO15022::Parse do
         ast: {
           format: [
             { literal: ':' },
-            { pattern: { length: 4..4, char_set: :c } },
+            { field: { length: 4..4, type: :c } },
             { literal: '//' },
             { date: :YYYYMMDDHHMMSS }
           ]
@@ -50,42 +53,42 @@ describe ParseISO15022::Parse do
         ast: {
           format: [
             { literal: ':' },
-            { pattern: { length: 4..4, char_set: :c } },
+            { field: { length: 4..4, type: :c } },
             { literal: '//' },
             { group:
                 { type: :optional,
                   format: [ { sign: :N } ] }
             },
-            { pattern: { length: 3..3, char_set: :a } },
-            { pattern: { length: 1..15, char_set: :d } }
+            { field: { length: 3..3, type: :a } },
+            { field: { length: 1..15, type: :d } }
           ]
         }
       },
       { string: '4!c/[8c]/4!c',
         ast: {
           format: [
-            { pattern: { length: 4..4, char_set: :c } },
+            { field: { length: 4..4, type: :c } },
             { literal: '/' },
             { group:
                 { type: :optional,
-                  format: [ { pattern: { length: 1..8, char_set: :c } } ] }
+                  format: [ { field: { length: 1..8, type: :c } } ] }
             },
             { literal: '/' },
-            { pattern: { length: 4..4, char_set: :c } }
+            { field: { length: 4..4, type: :c } }
           ]
         }
       },
       { string: '4!c//YYYYMMDDHHMMSS[,3n][/[N]HH[MM]]',
         ast: {
           format: [
-            { pattern: { length: 4..4, char_set: :c } },
+            { field: { length: 4..4, type: :c } },
             { literal: '//' },
             { date: :YYYYMMDDHHMMSS },
             { group:
                 { type: :optional,
                   format: [
                     { literal: ',' },
-                    pattern: { length: 1..3, char_set: :n }
+                    field: { length: 1..3, type: :n }
                   ]
                 }
             },

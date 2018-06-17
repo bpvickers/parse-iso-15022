@@ -25,6 +25,15 @@ module Parse
       '<' => :reformat
     }.freeze
 
+    FIELD_TYPE = {
+      n: '[0-9]',
+      a: '[A-Z]',
+      c: '[A-Z0-9]',
+      x: "[A-Za-z0-9/-?:().,’+ ]",
+      e: ' ',
+      d: '[0-9,]'
+    }.freeze
+
     GROUP_START_CHARS = GROUP_BRACKET.keys.freeze
     GROUP_END_CHARS = GROUP_BRACKET.values.freeze
 
@@ -33,13 +42,11 @@ module Parse
     GROUP_END_CHARS_SET = Set.new(GROUP_END_CHARS).freeze
     GROUP_END_CHAR = ->(c) { GROUP_END_CHARS_SET.member?(c) }.freeze
 
-    SPECIAL_CHARS_SET = Set.new(ParseISO15022::FORMAT_SPECIAL_CHARS).freeze
+    SPECIAL_CHARS_SET = Set.new(FORMAT_SPECIAL_CHARS).freeze
     SPECIAL_CHAR = ->(c) { SPECIAL_CHARS_SET.member?(c) }.freeze
 
     def self.string(input)
-      tokens = Tokenize.format(input)
-
-      { format: parse(tokens: tokens).first }
+      { format: parse(tokens: Tokenize.format(input)).first }
     end
 
     def self.parse(tokens:, index: 0, output: [])
@@ -63,15 +70,14 @@ module Parse
 
     def self.token(token, tokens, index)
       case token
-      when ::Integer then pattern(token, tokens, index)
-
+      # E.g., 3!c, 15d
+      when ::Integer then field(token, tokens, index)
+      # E.g., :YYYYMMDD
       when ::Symbol then date_format(token, index)
-
-      when 'N' then [{ sign: :N }, index + 1]
-
-      # Start of a group - e.g., [N]
+      # E.g., N
+      when SIGN_CHAR then [{ sign: SIGN_CHAR.to_sym }, index + 1]
+      # Start of a group - e.g., [N], [4!c]
       when GROUP_START_CHAR then group(token, tokens, index)
-
       # It's a literal
       else
         literal(token, tokens, index)
@@ -95,16 +101,18 @@ module Parse
     end
     private_class_method :check_group_end
 
-    def self.pattern(max, tokens, index)
+    # E.g., 3!c, 15d
+    def self.field(max, tokens, index)
       if tokens[index + 1] == '!'
         index += 1
         length = max..max
       else
         length = 1..max
       end
-      char_set = tokens[index += 1].to_sym
+      type = tokens[index += 1].to_sym
+      raise "invalid character set '#{type}'" unless FIELD_TYPE[type]
 
-      node = { pattern: { length: length, char_set: char_set } }
+      node = { field: { length: length, type: type } }
 
       [node.freeze, index + 1]
     end
@@ -116,9 +124,7 @@ module Parse
         index += 1
       end
 
-      node = { literal: literal }
-
-      [node.freeze, index]
+      [{ literal: literal }.freeze, index]
     end
 
     def self.date_format(token, index)
