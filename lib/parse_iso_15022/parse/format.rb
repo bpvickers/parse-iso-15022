@@ -82,15 +82,18 @@ module Parse
     def self.group(token, tokens, index)
       node, index = parse(tokens: tokens, index: index + 1)
 
-      end_bracket = GROUP_BRACKET[token]
-      end_token = tokens[index]  # if index.is_a?(::Integer) && tokens.is_a?(::Array)
-      unless end_token == end_bracket
-        raise "missing closing bracket #{end_token} for optional group"
-      end
+      check_group_end(start_token: token, end_token: tokens[index])
 
       [{ group: { type: GROUP_TYPE[token], format: node } }, index + 1]
     end
     private_class_method :group
+
+    def self.check_group_end(start_token:, end_token:)
+      return if end_token == GROUP_BRACKET[start_token]
+
+      raise "missing closing bracket #{GROUP_BRACKET[start_token]} for optional group"
+    end
+    private_class_method :check_group_end
 
     def self.pattern(max, tokens, index)
       if tokens[index + 1] == '!'
