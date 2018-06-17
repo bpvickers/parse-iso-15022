@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe ParseISO15022::Parse do
-  tests = [
+  valid_tests = [
     { string: ':4!c//35x',
       ast: {
         format: [
@@ -44,17 +44,50 @@ describe ParseISO15022::Parse do
           { literal: '/' },
           { group:
               { type: :optional,
-                format: [ pattern: { length: 1..8, char_set: :c } ] }
+                format: [ { pattern: { length: 1..8, char_set: :c } } ] }
           },
           { literal: '/' },
           { pattern: { length: 4..4, char_set: :c } }
+        ]
+      }
+    },
+    { string: '4!c//YYYYMMDDHHMMSS[,3n][/[N]HH[MM]]',
+      ast: {
+        format: [
+          { pattern: { length: 4..4, char_set: :c } },
+          { literal: '//' },
+          { date: :YYYYMMDDHHMMSS },
+          { group:
+              { type: :optional,
+                format: [
+                  { literal: ',' },
+                  pattern: { length: 1..3, char_set: :n }
+                ]
+              }
+          },
+          { group:
+              { type: :optional,
+                format: [
+                  { literal: '/' },
+                  { group:
+                      { type: :optional,
+                        format: [
+                          { sign: :N }
+                        ]
+                      }
+                  },
+                  { date: :HH },
+                  { group: { type: :optional, format: [date: :MM] } }
+                ]
+              }
+          }
         ]
       }
     }
   ]
 
   describe '.string' do
-    tests.each do |test|
+    valid_tests.each do |test|
       it "parses the string #{test[:string]}" do
         expect(ParseISO15022::Parse.format(test[:string])).to eq test[:ast]
       end

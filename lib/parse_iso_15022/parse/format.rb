@@ -27,21 +27,19 @@ module Parse
 
     GROUP_START_CHARS = GROUP_BRACKET.keys.freeze
     GROUP_END_CHARS = GROUP_BRACKET.values.freeze
-    GROUP_CHARS = (GROUP_START_CHARS + GROUP_END_CHARS).freeze
 
     GROUP_START_CHAR = ->(c) { GROUP_BRACKET.key?(c) }.freeze
 
     GROUP_END_CHARS_SET = Set.new(GROUP_END_CHARS).freeze
     GROUP_END_CHAR = ->(c) { GROUP_END_CHARS_SET.member?(c) }.freeze
 
-    SPECIAL_CHARS = (%w[N ! n a x y z c e d *] + GROUP_CHARS).freeze
-    SPECIAL_CHARS_SET = Set.new(SPECIAL_CHARS).freeze
+    SPECIAL_CHARS_SET = Set.new(ParseISO15022::FORMAT_SPECIAL_CHARS).freeze
     SPECIAL_CHAR = ->(c) { SPECIAL_CHARS_SET.member?(c) }.freeze
 
     def self.string(input)
       tokens = Tokenize.format(input)
 
-      { format: parse(tokens: tokens) }
+      { format: parse(tokens: tokens).first }
     end
 
     def self.parse(tokens:, index: 0, output: [])
@@ -59,8 +57,9 @@ module Parse
         output << node
       end
 
-      output
+      [output, index]
     end
+    private_class_method :parse
 
     def self.token(token, tokens, index)
       case token
@@ -73,19 +72,25 @@ module Parse
       # Start of a group - e.g., [N]
       when GROUP_START_CHAR then group(token, tokens, index)
 
-        # It's a literal
+      # It's a literal
       else
         literal(token, tokens, index)
       end
     end
+    private_class_method :token
 
     def self.group(token, tokens, index)
       node, index = parse(tokens: tokens, index: index + 1)
 
-      raise 'missing closing bracket ] for optional group' unless tokens[index] == ']'
+      end_bracket = GROUP_BRACKET[token]
+      end_token = tokens[index]  # if index.is_a?(::Integer) && tokens.is_a?(::Array)
+      unless end_token == end_bracket
+        raise "missing closing bracket #{end_token} for optional group"
+      end
 
       [{ group: { type: GROUP_TYPE[token], format: node } }, index + 1]
     end
+    private_class_method :group
 
     def self.pattern(max, tokens, index)
       if tokens[index + 1] == '!'
