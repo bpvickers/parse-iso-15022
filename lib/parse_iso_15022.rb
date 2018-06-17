@@ -16,21 +16,36 @@ module ParseISO15022
      [SIGN_CHAR] + FORMAT_DATE_CHARS + FORMAT_GROUP_CHARS
     ).freeze
 
+  FIELD_TYPE = {
+    n: '[0-9]',
+    a: '[A-Z]',
+    c: '[A-Z0-9]',
+    x: "[A-Za-z0-9/-?:().,’+ ]",
+    e: '[ ]',
+    d: '[0-9,]'
+  }.freeze
+
   # @return [String] gem project's root directory
   def self.root
     File.dirname __dir__
   end
 
-  autoload :Tokenize,    'parse_iso_15022/tokenize'
+  autoload :Generate,    'parse_iso_15022/generate'
   autoload :Parse,       'parse_iso_15022/parse'
+  autoload :Tokenize,    'parse_iso_15022/tokenize'
 
-  # Tokenizer module for strings in an ISO 15022 message
-  module Tokenize
-    autoload :Format,    'parse_iso_15022/tokenize/format'
+  # Generate module for manipulating strings in an ISO 15022 message
+  module Generate
+    autoload :Format,    'parse_iso_15022/generate/format'
   end
 
   # Parser module for strings in an ISO 15022 message
   module Parse
     autoload :Format,    'parse_iso_15022/parse/format'
+  end
+
+  # Tokenizer module for strings in an ISO 15022 message
+  module Tokenize
+    autoload :Format,    'parse_iso_15022/tokenize/format'
   end
 end

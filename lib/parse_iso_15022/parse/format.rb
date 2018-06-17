@@ -13,6 +13,8 @@ module Parse
     # 1) Optional group - []
     # 2) Capture group - ()
     # 3) Reformat capture group - <>
+    # The last two are not part of the ISO 15022 standard, but are used
+    # by the format command to extract parts of a field.
     GROUP_BRACKET = {
       '[' => ']',
       '(' => ')',
@@ -23,15 +25,6 @@ module Parse
       '[' => :optional,
       '(' => :capture,
       '<' => :reformat
-    }.freeze
-
-    FIELD_TYPE = {
-      n: '[0-9]',
-      a: '[A-Z]',
-      c: '[A-Z0-9]',
-      x: "[A-Za-z0-9/-?:().,’+ ]",
-      e: ' ',
-      d: '[0-9,]'
     }.freeze
 
     GROUP_START_CHARS = GROUP_BRACKET.keys.freeze
