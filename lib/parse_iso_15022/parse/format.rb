@@ -54,9 +54,7 @@ module Parse
       while index < tokens.length
         case (token = tokens[index])
         # Hit the end of group token, so pop back up the stack
-        when GROUP_END_CHAR
-        then return [output, index]
-
+        when GROUP_END_CHAR then return [output, index]
         else
           node, index = token(token, tokens, index)
         end
