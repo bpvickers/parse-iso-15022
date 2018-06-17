@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-describe ParseISO15022::Tokenize::Format do
-
+describe ParseISO15022::Tokenize do
   tests = [
     { string: ':4!c//35x',
       tokens: [':', 4, '!', 'c', '/',  '/', 35, 'x'] },
@@ -20,7 +19,7 @@ describe ParseISO15022::Tokenize::Format do
   describe '.string' do
     tests.each do |test|
       it "tokenizes the string #{test[:string]}" do
-        expect(ParseISO15022::Tokenize::Format.string(test[:string]))
+        expect(ParseISO15022::Tokenize.format(test[:string]))
           .to eq test[:tokens]
       end
     end

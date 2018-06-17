@@ -5,10 +5,11 @@
 # Created June 2018.
 # @author Brett Vickers <brett@phillips-vickers.com>
 module ParseISO15022
-  # Tokenizer modules for strings in an ISO 15022 message
-  module Tokenize
-    def self.format(input)
-      Format.string(input)
-    end
+
+# Tokenizer modules for strings in an ISO 15022 message
+module Parse
+  def self.format(input)
+    Format.string(input)
   end
+end
 end
